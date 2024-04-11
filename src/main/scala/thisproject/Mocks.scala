@@ -13,6 +13,7 @@ object Mocks {
     val stock2: Stock = Stock("XYZ")
   }
 
+  // A database in the form of a map.
   class MockDB extends KeyValueDB[IO, Bucket, Map[Stock, Aggregate]] {
   
     private var aggregateMap: Map[Bucket, Map[Stock, Aggregate]] = Map.empty
@@ -23,6 +24,7 @@ object Mocks {
 
     def get(key: Bucket) = IO.delay(aggregateMap.get(key))
 
+    // A makeshift display of the contents of the database, for demonstration purposes
     def listContents: IO[Unit] = IO.delay {
       for {
         (bucket, aggregates) <- aggregateMap.toList
@@ -36,6 +38,7 @@ object Mocks {
     }
   }
 
+  // `MockWebService` repeats a predefined sequence of prices
   class MockWebService extends WebService[IO] {
     var iterator: Integer = 0
     private def iteratePV(p1: Integer, p2: Integer, p3: Integer): IO[Price] = IO.delay {
@@ -55,11 +58,12 @@ object Mocks {
     def getPresentValue(stocks: List[Stock]) = stocks.traverse(getPV)
   }
 
+  // Increases the base time 20 minutes each time it is asked for the timestamp.
   class MockTimer(baseTime: LocalDateTime) extends Timer[IO] {
     var iterator: Integer = 0
     
     def getTimestamp = IO.delay {
-      val result = Timestamp(baseTime.plusMinutes(20*iterator))
+      val result = baseTime.plusMinutes(20*iterator)
       iterator += 1
       result
     }

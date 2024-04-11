@@ -24,11 +24,5 @@ object Dependencies {
 
     val munit               = "org.scalameta"       %% "munit"                % "0.7.29"    % Test
     val munitCatsEffect3    = "org.typelevel"       %% "munit-cats-effect-3"  % "1.0.7"     % Test
-
-    
-    // Plugins
-    //val kindProjector       = "org.typelevel"       %% "kind-projector"       % "0.13.2" cross CrossVersion.full
-    //val betterMonadicFor    = "com.olegpy"          %% "better-monadic-for"   % "0.3.1"
-
   }
 }

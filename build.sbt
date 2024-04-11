@@ -16,7 +16,5 @@ lazy val root = project
       Libs.fs2,
     ),
 
-  //addCompilerPlugin(Libs.kindProjector),
-  //addCompilerPlugin(Libs.betterMonadicFor),
   testFrameworks += new TestFramework("munit.Framework")
   )

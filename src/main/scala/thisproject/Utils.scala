@@ -1,7 +1,6 @@
 package thisproject
 
 import java.time.LocalDateTime
-//import scala.collections.immutable.Map
 
 object Utils {
 
@@ -12,6 +11,9 @@ object Utils {
     case (Some(v1), Some(v2)) => Some(fun(v1, v2))
   }
 
+  // Applies a binary function on elements of two maps, whose keys are the same.
+  // If a given key exists in only one map, it will be present with the
+  // corresponding value in the returned map.
   def zipMapsWith[K, V](plus: (V, V) => V)(m1: Map[K, V], m2: Map[K, V]): Map[K,V] = {
     val keys = (m1.keys ++ m2.keys).toList.distinct
 
