@@ -1,3 +1,5 @@
+import Dependencies._
+
 val scala3Version = "3.4.1"
 
 lazy val root = project
@@ -8,5 +10,13 @@ lazy val root = project
 
     scalaVersion := scala3Version,
 
-    libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
+    libraryDependencies ++= Seq(
+      Libs.catsCore,
+      Libs.catsEffect,
+      Libs.fs2,
+    ),
+
+  //addCompilerPlugin(Libs.kindProjector),
+  //addCompilerPlugin(Libs.betterMonadicFor),
+  testFrameworks += new TestFramework("munit.Framework")
   )

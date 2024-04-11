@@ -1,4 +1,4 @@
-package thisproject.Data
+package thisproject
 
 import java.time.LocalDateTime
 
@@ -8,15 +8,22 @@ object Data {
 
   final case class Stock(value: String) extends AnyVal
 
-  final case class Price(value: Integer) extends AnyVal
-
+  final case class Price(value: Integer) extends AnyVal {
+    def <(that: Price): Boolean = value < that.value
+    def >(that: Price): Boolean = value > that.value
+  }
+  object Price {
+    def <(lhs: Price, rhs: Price): Boolean = lhs.value < rhs.value
+    def >(lhs: Price, rhs: Price): Boolean = lhs.value > rhs.value
+  }
+  
   final case class Aggregate(min: Price, max: Price, avg: Price, private val numItems: Integer)
   object Aggregate {
-    def +(rhs: Aggregate, rhs: Aggregate): Aggregate
+    def +(lhs: Aggregate, rhs: Aggregate): Aggregate
       = Aggregate(
         if (lhs.min < rhs.min) lhs.min else rhs.min,
         if (lhs.max > rhs.max) lhs.max else rhs.max,
-        (lhs.numItems*lhs.avg + rhs.numItems*rhs.avg) / (lhs.numItems + rhs.numItems),
+        Price((lhs.numItems*lhs.avg.value + rhs.numItems*rhs.avg.value) / (lhs.numItems + rhs.numItems)),
         lhs.numItems + rhs.numItems,
       )
     def fromPrice(price: Price): Aggregate = Aggregate(price, price, price, 1)
@@ -26,39 +33,25 @@ object Data {
 
   final case class AggregateItem(bucket: Bucket, data: Map[Stock, Aggregate])
   object AggregateItem {
-    def fromServiceItem(item: ServiceItem): AggregateItem = AggregateItem(item.timestamp.getBucket, item.data.map(Aggregate.fromPrice))
+    def fromServiceItem(item: ServiceItem): AggregateItem
+      = AggregateItem(item.timestamp.getBucket, item.data.map((k, v) => (k, Aggregate.fromPrice(v))))
   }
 
   // Time
   final case class Timestamp(value: LocalDateTime) extends AnyVal {
-    def getBucket: Bucket = Bucket(Utils.roundToMinutes(value))
-
-    def isAfter (ts: Timestamp): Boolean = value.isAfter  (ts.value)
-    def isBefore(ts: Timestamp): Boolean = value.isBefore (ts.value)
-    def isEqual (ts: Timestamp): Boolean = value.isEqual  (ts.value)
+    def getBucket: Bucket = Bucket(Utils.roundToHours(value))
   }
 
-  final case class Bucket(private val value: LocalDateTime) extends AnyVal {
-    def addMinutes(n: Long): Bucket = Bucket(value.plus(n, ChronoUnit.MINUTES))
-    
-    def getSeconds: Long = value.toEpochSecond(UTC)
-    
-    def toTimestamp: Timestamp = Timestamp(value)
-    def toDateTime: DateTime = value
-
-    def isAfter (bucket: Bucket): Boolean = value.isAfter (bucket.value)
-    def isBefore(bucket: Bucket): Boolean = value.isBefore(bucket.value)
-    def isEqual (bucket: Bucket): Boolean = value.isEqual (bucket.value)
-  }
+  final case class Bucket(private val value: LocalDateTime) extends AnyVal
 
   // Interfaces
   trait WebService[F[_]] {
-    def getPresentValue(stocks: Array[Stock]): F[Array[Price]]
+    def getPresentValue(stocks: List[Stock]): F[List[Price]]
   }
 
   trait KeyValueDB[F[_], K, V] {
     def put(key: K, value: V): F[Unit]
-    def get(key: K): F[Some[V]]
+    def get(key: K): F[Option[V]]
   }
 
   trait Timer[F[_]] {
