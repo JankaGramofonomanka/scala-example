@@ -26,10 +26,10 @@ object Mocks {
     def listContents: IO[Unit] = IO.delay {
       for {
         (bucket, aggregates) <- aggregateMap.toList
-        _ <- { println(bucket.toString); List(()) }
+        _ <- { println(bucket.display); List(()) }
         (stock, aggr) <- aggregates
         _ <- {
-          println(s"    ${stock.value}: min = ${aggr.min}, max = ${aggr.max}, avg = ${aggr.avg}")
+          println(s"    ${stock.value}: min = ${aggr.min.value}, max = ${aggr.max.value}, avg = ${aggr.avg.value}")
           List(())
         }
       } yield ()
@@ -49,7 +49,7 @@ object Mocks {
       
     private def getPV(stock: Stock): IO[Price]
          = if (stock == Examples.stock1) iteratePV(100, 150, 200)
-      else if (stock == Examples.stock2) iteratePV(300, 100, 100)
+      else if (stock == Examples.stock2) iteratePV(300, 150, 150)
       else                               iteratePV(100, 100, 100)
     
     def getPresentValue(stocks: List[Stock]) = stocks.traverse(getPV)

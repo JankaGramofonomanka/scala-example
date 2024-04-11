@@ -42,7 +42,9 @@ object Data {
     def getBucket: Bucket = Bucket(Utils.roundToHours(value))
   }
 
-  final case class Bucket(private val value: LocalDateTime) extends AnyVal
+  final case class Bucket(private val value: LocalDateTime) extends AnyVal {
+    def display: String = value.toString
+  }
 
   // Interfaces
   trait WebService[F[_]] {

@@ -16,7 +16,7 @@ class AggregatorOps[F[_]: FlatMap](
   stocks:  List[Stock],
 ) {
 
-  private def serviceStream: Stream[F, ServiceItem] = Stream.eval(for {
+  private def serviceStream: Stream[F, ServiceItem] = Stream.repeatEval(for {
     timestamp <- timer.getTimestamp
     prices <- service.getPresentValue(stocks)
   } yield ServiceItem(timestamp, stocks.zip(prices).toMap))
